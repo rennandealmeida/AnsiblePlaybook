@@ -1,0 +1,21 @@
+---
+- name: Subindo o MongoDb em Container com persistencia de dados (logs, conf, db)
+  hosts: localhost
+  become: true
+  tasks:
+          - name: Criando Estrutura de Pastas
+            shell: mkdir -p -v /opt/mongo/data/db /opt/mongo/logs/mongodb /opt/mongo/config
+
+          - name: Subindo container mongo
+            shell: sudo docker run -it -d --name mongocp mongo
+
+          - name: Copiando Dados do Container
+            shell: docker cp mongocp:/data/db /opt/mongo/data
+            shell: docker cp mongocp:/etc/mongod.conf.orig /opt/mongo/config
+            shell: docker cp mongocp:/var/log/mongodb /opt/mongo/logs
+
+          - name: Removendo Container mongo
+            shell: docker rm -f mongocp
+
+          - name: Criando Container Mongo Configurado e com  Volumes (data, logs, confs) montados!
+            shell: docker run -it -d --name mongo -p 27017:27017 -v /opt/mongo/data/db:/data/db -v /opt/mongo/logs/mongodb:/var/log/mongodb -v /opt/mongo/config/mongodb.conf.orig:/etc/mongodb.conf.orig:ro -d mongo
